@@ -1,0 +1,51 @@
+spring:
+  config:
+    import: classpath:application-llm.yml
+  autoconfigure:
+    exclude:
+      # 关闭 Spring AI 自带的单模型 OpenAI 自动配置，改由 ModelRegistry 按配置批量构建多模型
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      # 项目使用自定义 ElasticsearchVectorStore，关闭 Spring AI 自带的 ES 向量存储（其依赖 EmbeddingModel 且为死代码）
+      - org.springframework.ai.vectorstore.elasticsearch.autoconfigure.ElasticsearchVectorStoreAutoConfiguration
+  elasticsearch:
+    uris: http://127.0.0.1:9200
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 110MB
+  threads:
+    virtual:
+      enabled: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: "123456"
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: 3000ms
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/agent_a?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+# 业务自定义配置
+app:
+  knowledge:
+    # 知识库文件本地存储目录
+    file-store-path: D:/WorkSpace/java/Agent-A/upload/knowledge
+    # 支持的文件扩展名白名单
+    allowed-extensions: txt,md,markdown,pdf,doc,docx
+    # ES 索引名前缀
+    index-prefix: kb
